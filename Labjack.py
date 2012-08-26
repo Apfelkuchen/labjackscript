@@ -29,6 +29,7 @@ class LabJack:
 		## bykey is for a list of available devices
 		## bytime is usefull for plotting, it looks if the device has a field "time"
 		## the views are copied directly from couchdb's futon
+		## a couchapp version of the views is contained in the folder views
 
 		try:
 			designdoc = self.db['_design/Labjack']
