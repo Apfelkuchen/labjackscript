@@ -42,9 +42,9 @@ class LabJack:
 			   "reduce": "function(keys, values, rereduce) {\n  if (rereduce) {\n    return sum(values);\n  } else {\n    return values.length;\n  }\n}"\
 			   },
 		   "bytime": {
-       "map": "function(doc) {\n\tif (doc['time']) {\n\tfor(var i in doc) {\n\t\tif (typeof(doc[i]) == \"object\") {\n\t\t\tvar theTime = new Date(doc['time']*1000);\n\t\t\tvar year = theTime.getFullYear();\n\t\t\tvar month = theTime.getMonth();\n\t\t\tvar daym = theTime.getDate();\n\t\t\tvar hours = theTime.getHours();\n\t\t\tvar minutes = theTime.getMinutes();\n\t\t\tvar seconds = theTime.getSeconds();\n\t\t\tvar milliseconds = theTime.getMilliseconds();\n\t\t\tfor(var devicename in doc[i]) {\n\t\t\t\temit([i,devicename,year,month,daym,hours,minutes,seconds,milliseconds], doc[i][devicename]['value']);\n}}}}}",
+       "map": "function(doc) {\n\tvar UTCOffset = (new Date).getTimezoneOffset()*60;\n\tif (doc['time']) {\n\tfor(var i in doc) {\n\t\tif (typeof(doc[i]) == \"object\") {\n\t\t\tvar theTime = new Date((doc['time']+UTCOffset)*1000);\n\t\t\tvar year = theTime.getFullYear();\n\t\t\tvar month = theTime.getMonth();\n\t\t\tvar daym = theTime.getDate();\n\t\t\tvar hours = theTime.getHours();\n\t\t\tvar minutes = theTime.getMinutes();\n\t\t\tvar seconds = theTime.getSeconds();\n\t\t\tvar milliseconds = theTime.getMilliseconds();\n\t\t\tfor(var devicename in doc[i]) {\n\t\t\t\temit([i,devicename,year,month,daym,hours,minutes,seconds,milliseconds], doc[i][devicename]['value']);\n}}}}}",
        "reduce": "function(keys, values, rereduce) {\n\tvar tot = 0;\n\tvar count = 0;\n\tif (rereduce) {\n\t\tfor (var idx in values) {\n\t\t\ttot += values[idx].tot;\n\t\t\tcount += values[idx].count;\n\t\t\t}\n\t\t}\n\telse {\n\t \ttot = sum(values);\n\t\tcount = values.length;\n\t\t\n\t}\n\treturn {tot:tot, count:count, avg:tot/count};\n}"
-   		}}
+   }}
 		designdoc['filters'] = {"controldoc" : "function(doc, req) {if(doc._deleted == true) {return false;}if(doc._id == 'ControlDoc') {return true;}return false;}"}
 		self.db.save(designdoc)
 		print('view created and filter')
@@ -58,7 +58,7 @@ class LabJack:
 		else:
 			self.ControlDoc = { '_id' : 'ControlDoc', 'DACs' : {}, 'updatefrequency': self.updatefrequency}
 			for i in range(2):
-				self.ControlDoc['DACs']['DAC'+str(i)] = { 'function' : 'constant', 'voltage' : round(self.Labjack.readRegister(5000+i*2),2)}
+				self.ControlDoc['DACs']['DAC'+str(i)] = {'voltage' : round(self.Labjack.readRegister(5000+i*2),2)}
 					
 		self.db.save(self.ControlDoc)
 		

@@ -1,0 +1,16 @@
+function(keys, values, rereduce) {
+	var tot = 0;
+	var count = 0;
+	if (rereduce) {
+		for (var idx in values) {
+			tot += values[idx].tot;
+			count += values[idx].count;
+			}
+		}
+	else {
+	 	tot = sum(values);
+		count = values.length;
+		
+	}
+	return {tot:tot, count:count, avg:tot/count};
+}
